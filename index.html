@@ -1,1064 +1,1197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Four Halftech — The front desk's other half</title>
+<title>4 Teq — اعرف سعر موقعك دلوقتي</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0B1F1C;
-    --bg:#F4FBF8;
-    --teal:#1FBFA3;
-    --teal-deep:#138C76;
-    --coral:#FF6B4A;
-    --coral-deep:#E5532F;
-    --text:#2B3B38;
-    --line:#D8E8E3;
-    --white:#FFFFFF;
+    --ink:#0B1220;
+    --ink-soft:#16202E;
+    --sand:#F2ECDF;
+    --sand-deep:#E8DFCC;
+    --teal:#0F8B6C;
+    --teal-deep:#0B6B53;
+    --amber:#E0883D;
+    --amber-deep:#C16E2A;
+    --slate:#7C8798;
+    --white:#FFFEFB;
+    --line: rgba(11,18,32,0.10);
+    --shadow: 0 20px 50px -20px rgba(11,18,32,0.35);
   }
 
-  *{margin:0;padding:0;box-sizing:border-box;}
+  *{box-sizing:border-box; margin:0; padding:0;}
 
   html{scroll-behavior:smooth;}
 
   body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    line-height:1.5;
+    font-family:'Tajawal', sans-serif;
+    background:var(--sand);
+    color:var(--ink);
+    line-height:1.7;
     overflow-x:hidden;
   }
 
-  .mono{
-    font-family:'JetBrains Mono',monospace;
+  h1,h2,h3,h4, .display{
+    font-family:'Cairo', sans-serif;
   }
 
-  h1,h2,h3,.display{
-    font-family:'Space Grotesk',sans-serif;
-    color:var(--ink);
-    letter-spacing:-0.02em;
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
   }
 
-  a{color:inherit;text-decoration:none;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+  input, select{font-family:inherit;}
 
-  .wrap{
-    max-width:1180px;
-    margin:0 auto;
-    padding:0 32px;
+  ::selection{ background: var(--teal); color: var(--white); }
+
+  /* ---------- Texture ---------- */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:2; opacity:0.035; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* ---------- seam motif ---------- */
-  .seam{
-    position:relative;
-  }
-  .seam::before{
-    content:"";
-    position:absolute;
-    top:0;
-    bottom:0;
-    left:50%;
-    width:1px;
-    background:repeating-linear-gradient(
-      to bottom,
-      var(--ink) 0px,
-      var(--ink) 5px,
-      transparent 5px,
-      transparent 11px
-    );
-    opacity:0.14;
-    pointer-events:none;
-  }
-
-  .seam-dot{
-    position:absolute;
-    left:50%;
-    transform:translate(-50%,-50%);
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    background:var(--bg);
-    border:1.5px solid var(--ink);
-    z-index:3;
-  }
-
-  /* ---------- nav ---------- */
-  header{
-    position:sticky;
-    top:0;
-    z-index:50;
-    background:rgba(244,251,248,0.86);
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6vw;
+    background:rgba(242,236,223,0.82);
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
   }
-  nav{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:20px 32px;
-    max-width:1180px;
-    margin:0 auto;
-  }
   .logo{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:700;
-    font-size:18px;
+    font-family:'Cairo', sans-serif; font-weight:900; font-size:1.4rem;
+    display:flex; align-items:center; gap:8px;
     color:var(--ink);
   }
-  .logo-mark{
-    width:30px;
-    height:30px;
-    border-radius:8px;
-    background:linear-gradient(135deg, var(--coral) 0%, var(--coral) 49.5%, var(--teal) 50.5%, var(--teal) 100%);
-    flex-shrink:0;
-    display:flex;
-  }
-  .nav-links{
-    display:flex;
-    gap:36px;
-    font-size:14.5px;
-    font-weight:500;
-  }
-  .nav-links a{
-    opacity:0.75;
-    transition:opacity 0.15s ease;
-  }
-  .nav-links a:hover{opacity:1;}
-  .nav-cta{
+  .logo .mark{
+    width:34px; height:34px; border-radius:9px;
     background:var(--ink);
-    color:var(--bg);
-    padding:10px 20px;
-    border-radius:7px;
-    font-size:14px;
-    font-weight:600;
-    transition:transform 0.15s ease, background 0.15s ease;
-    display:inline-block;
+    color:var(--sand);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.05rem; font-weight:900;
   }
-  .nav-cta:hover{
-    background:var(--teal-deep);
-    transform:translateY(-1px);
+  .nav-cta{
+    background:var(--teal); color:var(--white);
+    padding:10px 22px; border-radius:999px;
+    font-weight:700; font-size:0.92rem;
+    box-shadow:0 8px 20px -8px rgba(15,139,108,0.55);
+    transition:transform .25s ease, box-shadow .25s ease;
   }
-  .nav-mobile-hide{display:flex;}
-  @media (max-width:780px){
-    .nav-mobile-hide{display:none;}
-  }
+  .nav-cta:hover{ transform:translateY(-2px); box-shadow:0 12px 26px -8px rgba(15,139,108,0.65); }
 
-  /* ---------- hero ---------- */
+  /* ---------- Hero ---------- */
   .hero{
-    padding:88px 32px 0;
-    max-width:1180px;
-    margin:0 auto;
+    position:relative;
+    padding:8vh 6vw 10vh;
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap:4vw;
+    align-items:center;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; top:-20%; left:-10%;
+    width:600px; height:600px; border-radius:50%;
+    background:radial-gradient(circle, rgba(15,139,108,0.16), transparent 70%);
+    z-index:0;
   }
   .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:12.5px;
-    letter-spacing:0.04em;
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'Cairo', sans-serif; font-weight:700; font-size:0.85rem;
     color:var(--teal-deep);
-    background:rgba(31,191,163,0.1);
-    border:1px solid rgba(31,191,163,0.28);
-    padding:6px 12px;
-    border-radius:100px;
-    margin-bottom:28px;
+    background:rgba(15,139,108,0.10);
+    border:1px solid rgba(15,139,108,0.25);
+    padding:7px 16px; border-radius:999px;
+    margin-bottom:22px;
   }
-  .eyebrow .dot{
-    width:6px;height:6px;border-radius:50%;
-    background:var(--teal-deep);
-  }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--amber); }
+
   .hero h1{
-    font-size:clamp(40px, 6vw, 72px);
-    font-weight:700;
-    line-height:1.02;
-    max-width:920px;
-  }
-  .hero h1 .accent-coral{color:var(--coral);}
-  .hero h1 .accent-teal{color:var(--teal-deep);}
-  .hero-sub{
-    margin-top:26px;
-    font-size:19px;
-    color:var(--text);
-    max-width:560px;
-    opacity:0.88;
-  }
-  .hero-ctas{
-    margin-top:36px;
-    display:flex;
-    gap:14px;
-    flex-wrap:wrap;
-  }
-  .btn-primary{
-    background:var(--ink);
-    color:var(--bg);
-    padding:15px 26px;
-    border-radius:8px;
-    font-weight:600;
-    font-size:15px;
-    border:none;
-    cursor:pointer;
-    transition:transform 0.15s ease, background 0.15s ease;
-  }
-  .btn-primary:hover{background:var(--coral-deep); transform:translateY(-2px);}
-  .btn-secondary{
-    background:transparent;
+    font-size:clamp(2.2rem, 4.6vw, 3.6rem);
+    font-weight:900;
+    line-height:1.28;
     color:var(--ink);
-    padding:15px 26px;
-    border-radius:8px;
-    font-weight:600;
-    font-size:15px;
-    border:1.5px solid var(--ink);
-    cursor:pointer;
-    transition:all 0.15s ease;
+    margin-bottom:22px;
+    position:relative; z-index:1;
   }
-  .btn-secondary:hover{background:var(--ink); color:var(--bg);}
-
-  /* ---------- split visual ---------- */
-  .split-stage{
-    margin-top:64px;
+  .hero h1 .accent{
+    color:var(--teal-deep);
     position:relative;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    border:1px solid var(--line);
-    border-radius:18px;
-    overflow:hidden;
-    background:var(--white);
+    white-space:nowrap;
   }
-  .split-half{
-    padding:36px 36px 40px;
-    position:relative;
-  }
-  .split-left{
-    background:linear-gradient(180deg, #FFF4F1 0%, #FFFFFF 100%);
-  }
-  .split-right{
-    background:linear-gradient(180deg, #EAFBF7 0%, #FFFFFF 100%);
-  }
-  .split-label{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11.5px;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    margin-bottom:18px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .split-left .split-label{color:var(--coral-deep);}
-  .split-right .split-label{color:var(--teal-deep);}
-  .split-label .bar{
-    width:16px;height:2px;
-  }
-  .split-left .bar{background:var(--coral);}
-  .split-right .bar{background:var(--teal);}
-
-  .ring-row{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:13px 14px;
-    background:var(--white);
-    border:1px solid var(--line);
-    border-radius:10px;
-    margin-bottom:10px;
-    font-size:13.5px;
-  }
-  .ring-row .ph{
-    width:30px;height:30px;border-radius:50%;
-    background:#FFE2D8;
-    flex-shrink:0;
-    position:relative;
-  }
-  .ring-row .ph::after{
+  .hero h1 .accent::after{
     content:"";
-    position:absolute;
-    inset:0;
-    margin:auto;
-    width:12px;height:12px;
-    background:var(--coral);
+    position:absolute; right:0; left:0; bottom:2px; height:0.32em;
+    background:rgba(224,136,61,0.35);
+    z-index:-1;
     border-radius:3px;
   }
-  .ring-row .meta{flex:1;}
-  .ring-row .name{font-weight:600;color:var(--ink);}
-  .ring-row .status{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    color:var(--coral-deep);
-    opacity:0.85;
-  }
-  .ring-row.faded{opacity:0.45;}
 
-  .chat-bubble-row{margin-bottom:10px;display:flex;}
-  .chat-bubble{
-    max-width:84%;
-    padding:11px 14px;
-    border-radius:12px;
-    font-size:13.5px;
-    line-height:1.45;
+  .hero p.lede{
+    font-size:1.15rem;
+    color:var(--ink-soft);
+    max-width:48ch;
+    margin-bottom:34px;
+    position:relative; z-index:1;
   }
-  .chat-bubble.in{
+
+  .hero-actions{ display:flex; gap:16px; flex-wrap:wrap; position:relative; z-index:1; }
+
+  .btn-primary{
+    background:var(--ink); color:var(--sand);
+    padding:16px 30px; border-radius:14px;
+    font-family:'Cairo', sans-serif; font-weight:700; font-size:1.02rem;
+    display:inline-flex; align-items:center; gap:10px;
+    box-shadow: var(--shadow);
+    transition:transform .25s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-3px); }
+  .btn-primary svg{ transition:transform .25s ease; }
+  .btn-primary:hover svg{ transform:translateX(-4px); }
+
+  .btn-ghost{
+    padding:16px 26px; border-radius:14px;
+    font-family:'Cairo', sans-serif; font-weight:700; font-size:1.02rem;
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    background:transparent;
+  }
+
+  .hero-stats{
+    display:flex; gap:30px; margin-top:46px; position:relative; z-index:1;
+  }
+  .stat .num{ font-family:'Cairo'; font-weight:800; font-size:1.6rem; color:var(--ink); }
+  .stat .label{ font-size:0.85rem; color:var(--slate); }
+
+  /* hero visual: mock quote card */
+  .hero-visual{ position:relative; z-index:1; }
+  .quote-card{
     background:var(--white);
+    border-radius:22px;
+    padding:30px;
+    box-shadow:var(--shadow);
     border:1px solid var(--line);
-    color:var(--text);
-    border-bottom-left-radius:3px;
-  }
-  .chat-bubble.out{
-    background:var(--teal);
-    color:var(--white);
-    margin-left:auto;
-    border-bottom-right-radius:3px;
-    font-weight:500;
-  }
-
-  .split-foot{
-    margin-top:16px;
-    font-size:13px;
-    color:var(--text);
-    opacity:0.7;
-  }
-  .split-foot strong{color:var(--ink);opacity:1;}
-
-  @media (max-width:780px){
-    .split-stage{grid-template-columns:1fr;}
-    .split-left{border-bottom:1px dashed var(--line);}
-  }
-
-  /* ---------- section shared ---------- */
-  section{
-    padding:120px 0;
+    transform:rotate(-1.2deg);
     position:relative;
   }
-  .section-head{
-    max-width:620px;
-    margin-bottom:64px;
+  .quote-card .qc-top{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:22px; padding-bottom:18px; border-bottom:1px dashed var(--line);
   }
-  .section-head.center{margin-left:auto;margin-right:auto;text-align:center;}
-  .section-eyebrow{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--teal-deep);
-    margin-bottom:14px;
-    font-weight:500;
+  .qc-top .who{ font-family:'Cairo'; font-weight:700; font-size:0.95rem; color:var(--slate); }
+  .qc-top .badge{
+    background:var(--teal); color:white; font-size:0.75rem; font-weight:700;
+    padding:5px 12px; border-radius:999px; font-family:'Cairo';
+  }
+  .qc-row{ display:flex; justify-content:space-between; padding:10px 0; font-size:0.95rem; color:var(--ink-soft); }
+  .qc-row span:last-child{ font-weight:700; color:var(--ink); font-family:'Cairo'; }
+  .qc-total{
+    margin-top:18px; padding-top:18px; border-top:2px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .qc-total .lab{ font-family:'Cairo'; font-weight:700; font-size:1.05rem; }
+  .qc-total .val{ font-family:'Cairo'; font-weight:900; font-size:2rem; color:var(--amber-deep); }
+  .qc-total .val sub{ font-size:0.9rem; font-weight:700; color:var(--slate); }
+  .floatie{
+    position:absolute; background:var(--amber); color:white;
+    font-family:'Cairo'; font-weight:800; font-size:0.8rem;
+    padding:9px 16px; border-radius:12px;
+    box-shadow:0 14px 26px -10px rgba(224,136,61,0.6);
+    animation: float 4s ease-in-out infinite;
+  }
+  .floatie.f1{ top:-18px; left:-22px; transform:rotate(-6deg); }
+  .floatie.f2{ bottom:18px; right:-26px; background:var(--ink); animation-delay:.6s; }
+  @keyframes float{ 0%,100%{transform:translateY(0) rotate(-6deg);} 50%{transform:translateY(-10px) rotate(-3deg);} }
+  .floatie.f2{ animation-name: float2; }
+  @keyframes float2{ 0%,100%{transform:translateY(0) rotate(3deg);} 50%{transform:translateY(-8px) rotate(6deg);} }
+
+  /* ---------- Trust strip ---------- */
+  .trust{
+    padding:26px 6vw;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    display:flex; gap:48px; align-items:center; flex-wrap:wrap;
+    justify-content:center;
+    font-family:'Cairo'; font-weight:700; color:var(--ink-soft); font-size:0.95rem;
+  }
+  .trust .item{ display:flex; align-items:center; gap:10px; }
+  .trust .item svg{ color:var(--teal); flex-shrink:0; }
+
+  /* ---------- Section shells ---------- */
+  .section{ padding:9vh 6vw; }
+  .section-head{ text-align:center; max-width:680px; margin:0 auto 56px; }
+  .section-head .tag{
+    font-family:'Cairo'; font-weight:700; font-size:0.85rem; color:var(--amber-deep);
+    text-transform:uppercase; letter-spacing:0.04em; margin-bottom:12px; display:block;
   }
   .section-head h2{
-    font-size:clamp(30px, 4vw, 42px);
-    font-weight:700;
-    line-height:1.1;
+    font-size:clamp(1.7rem, 3vw, 2.5rem); font-weight:800; color:var(--ink); margin-bottom:14px;
   }
-  .section-head p{
-    margin-top:16px;
-    font-size:17px;
-    opacity:0.78;
-  }
+  .section-head p{ color:var(--slate); font-size:1.05rem; }
 
-  /* ---------- the four (halves) ---------- */
-  .halves-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:0;
-    border-top:1px solid var(--line);
-    border-left:1px solid var(--line);
+  /* ---------- How it works ---------- */
+  .how{ background:var(--white); }
+  .how-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:28px; max-width:1100px; margin:0 auto;
   }
-  .half-card{
-    border-right:1px solid var(--line);
-    border-bottom:1px solid var(--line);
-    padding:40px 36px;
-    position:relative;
-  }
-  .half-tag{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11.5px;
-    color:var(--teal-deep);
-    background:rgba(31,191,163,0.09);
-    display:inline-block;
-    padding:4px 9px;
-    border-radius:5px;
-    margin-bottom:18px;
-  }
-  .half-card h3{
-    font-size:21px;
-    font-weight:600;
-    margin-bottom:10px;
-  }
-  .half-card p{
-    font-size:15px;
-    opacity:0.78;
-    margin-bottom:16px;
-  }
-  .half-split-mini{
-    display:flex;
-    border-radius:8px;
-    overflow:hidden;
+  .how-card{
+    background:var(--sand);
+    border-radius:18px; padding:32px 26px;
     border:1px solid var(--line);
-    font-size:12px;
-    font-family:'JetBrains Mono',monospace;
-  }
-  .half-split-mini > div{
-    flex:1;
-    padding:9px 10px;
-  }
-  .half-split-mini .ai-part{
-    background:rgba(31,191,163,0.08);
-    color:var(--teal-deep);
-    border-right:1px dashed var(--line);
-  }
-  .half-split-mini .human-part{
-    background:rgba(255,107,74,0.07);
-    color:var(--coral-deep);
-  }
-
-  @media (max-width:780px){
-    .halves-grid{grid-template-columns:1fr;}
-  }
-
-  /* ---------- how it works (seam timeline) ---------- */
-  .flow{
     position:relative;
-    padding-top:20px;
   }
-  .flow-row{
-    display:grid;
-    grid-template-columns:1fr 60px 1fr;
-    align-items:center;
-    margin-bottom:8px;
+  .how-card .step{
+    font-family:'Cairo'; font-weight:900; font-size:2.6rem; color:rgba(11,18,32,0.10);
+    line-height:1; margin-bottom:14px;
   }
-  .flow-card{
-    background:var(--white);
+  .how-card h3{ font-family:'Cairo'; font-weight:700; font-size:1.15rem; margin-bottom:10px; }
+  .how-card p{ color:var(--slate); font-size:0.96rem; }
+
+  /* ---------- Compare ---------- */
+  .compare{ }
+  .compare-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:26px; max-width:900px; margin:0 auto;
+  }
+  .compare-card{
+    background:var(--white); border-radius:20px; padding:34px 28px;
     border:1px solid var(--line);
-    border-radius:12px;
-    padding:20px 22px;
+    transition:transform .3s ease, box-shadow .3s ease;
   }
-  .flow-row:nth-child(odd) .flow-card.human{grid-column:1;}
-  .flow-center{
-    display:flex;
-    justify-content:center;
-    position:relative;
+  .compare-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow); }
+  .compare-card .ico{
+    width:52px; height:52px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px; color:white;
   }
-  .flow-step-num{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    font-weight:500;
-    color:var(--ink);
-    background:var(--bg);
-    border:1.5px solid var(--ink);
-    width:34px;height:34px;
-    border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    z-index:2;
-  }
-  .flow-card h4{
-    font-size:15.5px;
-    font-weight:600;
-    color:var(--ink);
-    margin-bottom:6px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .flow-card h4 .chip{
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    padding:2px 7px;
-    border-radius:5px;
-    text-transform:uppercase;
-    letter-spacing:0.03em;
-  }
-  .chip.ai{background:rgba(31,191,163,0.14);color:var(--teal-deep);}
-  .chip.human{background:rgba(255,107,74,0.12);color:var(--coral-deep);}
-  .flow-card p{font-size:13.5px;opacity:0.75;}
-  .flow-empty{visibility:hidden;}
+  .compare-card.custom .ico{ background:var(--ink); }
+  .compare-card.shopify .ico{ background:var(--teal); }
+  .compare-card h3{ font-family:'Cairo'; font-weight:800; font-size:1.3rem; margin-bottom:8px; }
+  .compare-card .sub{ color:var(--slate); font-size:0.92rem; margin-bottom:20px; }
+  .compare-card ul{ list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .compare-card li{ display:flex; align-items:flex-start; gap:10px; font-size:0.95rem; color:var(--ink-soft); }
+  .compare-card li svg{ flex-shrink:0; margin-top:3px; color:var(--teal); }
 
-  @media (max-width:780px){
-    .flow-row{grid-template-columns:1fr;gap:10px;}
-    .flow-center{display:none;}
-    .flow-row:nth-child(odd) .flow-card.human{grid-column:auto;}
-  }
-
-  /* ---------- proof strip ---------- */
-  .stats-strip{
+  /* ================= FORM SECTION ================= */
+  .form-section{
     background:var(--ink);
-    color:var(--bg);
-  }
-  .stats-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:1px;
-    background:rgba(244,251,248,0.14);
-    border:1px solid rgba(244,251,248,0.14);
-    border-radius:14px;
+    color:var(--sand);
+    padding:9vh 6vw 11vh;
+    position:relative;
     overflow:hidden;
   }
-  .stat-cell{
-    background:var(--ink);
-    padding:32px 26px;
+  .form-section::before{
+    content:""; position:absolute; bottom:-30%; left:-10%;
+    width:700px; height:700px; border-radius:50%;
+    background:radial-gradient(circle, rgba(15,139,108,0.18), transparent 70%);
   }
-  .stat-num{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:38px;
-    font-weight:700;
-    color:var(--teal);
-  }
-  .stat-cell:nth-child(2n) .stat-num{color:var(--coral);}
-  .stat-label{
-    margin-top:8px;
-    font-size:13.5px;
-    opacity:0.65;
-  }
-  @media (max-width:780px){
-    .stats-grid{grid-template-columns:1fr 1fr;}
+  .form-section .section-head h2{ color:var(--sand); }
+  .form-section .section-head p{ color:rgba(242,236,223,0.6); }
+  .form-section .section-head .tag{ color:var(--amber); }
+
+  .estimator{
+    max-width:760px; margin:0 auto;
+    background:var(--ink-soft);
+    border-radius:26px;
+    padding:0;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,0.5);
+    border:1px solid rgba(242,236,223,0.08);
+    position:relative; z-index:1;
+    overflow:hidden;
   }
 
-  /* ---------- testimonial ---------- */
-  .testimonial{
-    max-width:760px;
-    margin:0 auto;
-    text-align:center;
+  .est-progress{
+    display:flex; gap:6px; padding:26px 30px 0;
   }
-  .testimonial blockquote{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:clamp(22px,3vw,30px);
-    font-weight:500;
-    color:var(--ink);
-    line-height:1.35;
+  .est-progress .bar{
+    flex:1; height:5px; border-radius:99px; background:rgba(242,236,223,0.12); overflow:hidden;
   }
-  .testimonial cite{
-    display:block;
-    margin-top:26px;
-    font-style:normal;
-    font-size:14.5px;
-    opacity:0.65;
+  .est-progress .bar i{
+    display:block; height:100%; width:0%; background:var(--teal);
+    transition:width .4s ease;
   }
 
-  /* ---------- pricing ---------- */
-  .pricing-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
+  .est-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 30px 0;
+    font-family:'Cairo'; font-size:0.82rem; color:rgba(242,236,223,0.5);
   }
+
+  .est-body{ padding:14px 30px 34px; min-height:320px; }
+
+  .step-pane{ display:none; animation: fadeUp .45s ease; }
+  .step-pane.active{ display:block; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+  .step-title{
+    font-family:'Cairo'; font-weight:800; font-size:1.4rem; margin:14px 0 8px; color:var(--sand);
+  }
+  .step-hint{ color:rgba(242,236,223,0.55); font-size:0.95rem; margin-bottom:26px; }
+
+  .choice-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .choice-card{
+    background:rgba(242,236,223,0.04);
+    border:1.5px solid rgba(242,236,223,0.12);
+    border-radius:16px; padding:24px 20px;
+    cursor:pointer; text-align:center;
+    transition:all .25s ease;
+  }
+  .choice-card:hover{ border-color:rgba(15,139,108,0.5); background:rgba(15,139,108,0.07); }
+  .choice-card.selected{ border-color:var(--teal); background:rgba(15,139,108,0.14); box-shadow:0 0 0 3px rgba(15,139,108,0.18); }
+  .choice-card .cico{ font-size:2rem; margin-bottom:12px; display:block; }
+  .choice-card h4{ font-family:'Cairo'; font-weight:700; font-size:1.05rem; margin-bottom:6px; color:var(--sand); }
+  .choice-card p{ font-size:0.85rem; color:rgba(242,236,223,0.5); }
+
+  .field{ margin-bottom:20px; }
+  .field label{
+    display:block; font-family:'Cairo'; font-weight:700; font-size:0.92rem;
+    margin-bottom:9px; color:var(--sand);
+  }
+  .field .req{ color:var(--amber); margin-right:3px; }
+  .field input[type="text"], .field input[type="tel"], .field input[type="email"], .field select{
+    width:100%; padding:14px 16px; border-radius:12px;
+    background:rgba(242,236,223,0.06);
+    border:1.5px solid rgba(242,236,223,0.14);
+    color:var(--sand); font-size:0.98rem;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .field input::placeholder{ color:rgba(242,236,223,0.32); }
+  .field input:focus, .field select:focus{
+    outline:none; border-color:var(--teal); background:rgba(242,236,223,0.09);
+  }
+  .field select{ cursor:pointer; }
+  .field select option{ background:var(--ink-soft); color:var(--sand); }
+
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  .pill-group{ display:flex; flex-wrap:wrap; gap:10px; }
+  .pill{
+    padding:11px 18px; border-radius:999px;
+    border:1.5px solid rgba(242,236,223,0.16);
+    background:rgba(242,236,223,0.04);
+    font-size:0.9rem; color:var(--sand);
+    cursor:pointer; transition:all .2s ease;
+    font-family:'Tajawal'; font-weight:500;
+  }
+  .pill:hover{ border-color:rgba(15,139,108,0.5); }
+  .pill.selected{ background:var(--teal); border-color:var(--teal); font-weight:700; }
+
+  .check-row{
+    display:flex; align-items:center; gap:12px;
+    padding:13px 16px; border-radius:12px;
+    border:1.5px solid rgba(242,236,223,0.12);
+    margin-bottom:10px; cursor:pointer;
+    transition:all .2s ease;
+  }
+  .check-row:hover{ border-color:rgba(15,139,108,0.4); }
+  .check-row.selected{ border-color:var(--teal); background:rgba(15,139,108,0.1); }
+  .check-row .box{
+    width:20px; height:20px; border-radius:6px; border:1.5px solid rgba(242,236,223,0.3);
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    transition:all .2s ease;
+  }
+  .check-row.selected .box{ background:var(--teal); border-color:var(--teal); }
+  .check-row .box svg{ opacity:0; transition:opacity .15s ease; }
+  .check-row.selected .box svg{ opacity:1; }
+  .check-row .txt strong{ font-family:'Cairo'; font-size:0.95rem; display:block; color:var(--sand); }
+  .check-row .txt span{ font-size:0.82rem; color:rgba(242,236,223,0.5); }
+
+  .est-nav{
+    display:flex; justify-content:space-between; align-items:center; margin-top:30px; gap:14px;
+  }
+  .btn-next{
+    background:var(--teal); color:white;
+    padding:14px 28px; border-radius:12px;
+    font-family:'Cairo'; font-weight:700; font-size:0.98rem;
+    display:flex; align-items:center; gap:8px;
+    transition:all .2s ease;
+  }
+  .btn-next:hover{ background:var(--teal-deep); }
+  .btn-next:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn-back{
+    color:rgba(242,236,223,0.55); font-family:'Cairo'; font-weight:700; font-size:0.92rem;
+    padding:14px 10px; display:flex; align-items:center; gap:6px;
+  }
+  .btn-back:hover{ color:var(--sand); }
+  .btn-back.hidden{ visibility:hidden; }
+
+  .err-msg{
+    color:#F0A26B; font-size:0.85rem; margin-top:8px; display:none; font-family:'Cairo'; font-weight:600;
+  }
+
+  /* result pane */
+  .result-pane{ text-align:center; padding-top:6px; }
+  .result-pane .check-burst{
+    width:74px; height:74px; border-radius:50%; background:var(--teal);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 22px;
+    animation: pop .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes pop{ from{transform:scale(0);} to{transform:scale(1);} }
+  .result-pane h3{ font-family:'Cairo'; font-weight:800; font-size:1.4rem; margin-bottom:6px; color:var(--sand); }
+  .result-pane .sub{ color:rgba(242,236,223,0.55); font-size:0.95rem; margin-bottom:30px; }
+
   .price-card{
-    background:var(--white);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:34px 30px;
-    display:flex;
-    flex-direction:column;
+    background:linear-gradient(145deg, rgba(224,136,61,0.12), rgba(242,236,223,0.04));
+    border:1.5px solid rgba(224,136,61,0.35);
+    border-radius:20px; padding:32px 26px; margin-bottom:24px;
   }
-  .price-card.featured{
-    border:1.5px solid var(--ink);
-    position:relative;
-    transform:translateY(-8px);
+  .price-card .plabel{ font-family:'Cairo'; font-weight:700; font-size:0.9rem; color:rgba(242,236,223,0.6); margin-bottom:10px; }
+  .price-card .pval{
+    font-family:'Cairo'; font-weight:900; font-size:3rem; color:var(--amber);
+    display:flex; align-items:baseline; justify-content:center; gap:8px;
   }
-  .featured-tag{
-    position:absolute;
-    top:-13px;
-    left:30px;
-    background:var(--coral);
-    color:var(--white);
-    font-size:11.5px;
-    font-weight:600;
-    padding:5px 11px;
-    border-radius:100px;
-    font-family:'JetBrains Mono',monospace;
+  .price-card .pval .cur{ font-size:1.1rem; font-weight:700; color:rgba(242,236,223,0.7); }
+  .price-card .prange{ font-size:0.85rem; color:rgba(242,236,223,0.45); margin-top:10px; }
+  .price-breakdown{
+    text-align:right; margin-top:22px; padding-top:18px; border-top:1px dashed rgba(242,236,223,0.18);
+    display:flex; flex-direction:column; gap:8px;
   }
-  .price-card h3{font-size:18px;font-weight:600;margin-bottom:6px;}
-  .price-card .price-amt{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:38px;
-    font-weight:700;
-    color:var(--ink);
-    margin:14px 0 4px;
-  }
-  .price-amt span{font-size:15px;font-weight:500;opacity:0.55;}
-  .price-card .price-desc{font-size:14px;opacity:0.7;margin-bottom:22px;}
-  .price-feats{list-style:none;margin-bottom:26px;flex:1;}
-  .price-feats li{
-    font-size:14px;
-    padding:9px 0;
-    border-top:1px solid var(--line);
-    display:flex;
-    gap:10px;
-  }
-  .price-feats li:first-child{border-top:none;}
-  .price-feats li::before{
-    content:"+";
-    font-family:'JetBrains Mono',monospace;
-    color:var(--teal-deep);
-    font-weight:600;
-  }
-  .price-cta{
-    text-align:center;
-    padding:13px;
-    border-radius:8px;
-    font-weight:600;
-    font-size:14.5px;
-    border:1.5px solid var(--ink);
-    color:var(--ink);
-    transition:all 0.15s ease;
-  }
-  .price-card.featured .price-cta{
-    background:var(--ink);
-    color:var(--bg);
-  }
-  .price-cta:hover{background:var(--ink);color:var(--bg);}
+  .price-breakdown .pbrow{ display:flex; justify-content:space-between; font-size:0.88rem; color:rgba(242,236,223,0.65); }
+  .price-breakdown .pbrow span:last-child{ color:var(--sand); font-weight:700; font-family:'Cairo'; }
 
-  @media (max-width:900px){
-    .pricing-grid{grid-template-columns:1fr;}
-    .price-card.featured{transform:none;}
+  .result-actions{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .btn-whatsapp{
+    background:#25D366; color:white; padding:15px 26px; border-radius:12px;
+    font-family:'Cairo'; font-weight:700; display:flex; align-items:center; gap:9px;
   }
+  .btn-restart{
+    color:rgba(242,236,223,0.7); padding:15px 16px; font-family:'Cairo'; font-weight:600; font-size:0.9rem;
+    background:transparent; text-decoration:underline; text-underline-offset:3px;
+  }
+  .btn-restart:hover{ color:var(--sand); }
 
-  /* ---------- faq ---------- */
-  .faq-list{
-    border-top:1px solid var(--line);
-  }
+  /* ---------- FAQ ---------- */
+  .faq{ background:var(--white); }
+  .faq-list{ max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
   .faq-item{
-    border-bottom:1px solid var(--line);
-    padding:24px 0;
+    border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background:var(--sand);
   }
-  .faq-item summary{
-    cursor:pointer;
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:600;
-    font-size:17px;
-    color:var(--ink);
-    list-style:none;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+  .faq-q{
+    padding:20px 24px; display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; font-family:'Cairo'; font-weight:700; font-size:1rem;
   }
-  .faq-item summary::-webkit-details-marker{display:none;}
-  .faq-item summary::after{
-    content:"+";
-    font-family:'JetBrains Mono',monospace;
-    font-size:20px;
-    color:var(--teal-deep);
-    transition:transform 0.2s ease;
-    flex-shrink:0;
-    margin-left:20px;
-  }
-  .faq-item[open] summary::after{transform:rotate(45deg);}
-  .faq-item p{
-    margin-top:14px;
-    font-size:15px;
-    opacity:0.78;
-    max-width:680px;
-  }
+  .faq-q .plus{ font-size:1.4rem; color:var(--teal); transition:transform .3s ease; flex-shrink:0; }
+  .faq-item.open .faq-q .plus{ transform:rotate(45deg); }
+  .faq-a{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .faq-a p{ padding:0 24px 20px; color:var(--slate); font-size:0.95rem; }
 
-  /* ---------- final cta ---------- */
-  .final-cta{
-    background:linear-gradient(135deg, #FFF4F1 0%, #EAFBF7 100%);
-    border-radius:24px;
-    padding:70px 50px;
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-  }
-  .final-cta h2{
-    font-size:clamp(28px,4vw,44px);
-    font-weight:700;
-  }
-  .final-cta p{
-    margin-top:14px;
-    font-size:17px;
-    opacity:0.78;
-    max-width:480px;
-    margin-left:auto;
-    margin-right:auto;
-  }
-  .final-cta .hero-ctas{justify-content:center;margin-top:30px;}
-
-  /* ---------- footer ---------- */
+  /* ---------- Footer ---------- */
   footer{
-    border-top:1px solid var(--line);
-    padding:48px 0 36px;
+    background:var(--ink); color:rgba(242,236,223,0.6);
+    padding:50px 6vw 28px;
   }
-  .footer-grid{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    flex-wrap:wrap;
-    gap:30px;
+  .footer-top{
+    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:30px;
+    padding-bottom:30px; border-bottom:1px solid rgba(242,236,223,0.1); margin-bottom:24px;
   }
-  .footer-cols{
-    display:flex;
-    gap:60px;
-    flex-wrap:wrap;
-  }
-  .footer-col h5{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11.5px;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    opacity:0.5;
-    margin-bottom:14px;
-  }
-  .footer-col a{
-    display:block;
-    font-size:14px;
-    padding:5px 0;
-    opacity:0.75;
-  }
-  .footer-col a:hover{opacity:1;color:var(--teal-deep);}
-  .footer-bottom{
-    margin-top:50px;
-    padding-top:24px;
-    border-top:1px solid var(--line);
-    display:flex;
-    justify-content:space-between;
-    font-size:13px;
-    opacity:0.55;
-    flex-wrap:wrap;
-    gap:10px;
-  }
+  .footer-top .logo{ color:var(--sand); }
+  .footer-top .logo .mark{ background:var(--teal); color:white; }
+  .footer-links{ display:flex; gap:34px; flex-wrap:wrap; }
+  .footer-links a{ font-size:0.92rem; transition:color .2s ease; }
+  .footer-links a:hover{ color:var(--sand); }
+  .footer-bottom{ text-align:center; font-size:0.82rem; color:rgba(242,236,223,0.35); }
 
-  /* reveal on scroll */
-  .reveal{
-    opacity:0;
-    transform:translateY(18px);
-    transition:opacity 0.6s ease, transform 0.6s ease;
+  /* ---------- Responsive ---------- */
+  @media (max-width:920px){
+    .hero{ grid-template-columns:1fr; padding-top:5vh; }
+    .hero-visual{ order:-1; max-width:420px; margin:0 auto 20px; }
+    .how-grid{ grid-template-columns:1fr; }
+    .compare-grid{ grid-template-columns:1fr; }
+    .choice-grid{ grid-template-columns:1fr; }
+    .field-row{ grid-template-columns:1fr; }
+    .trust{ gap:24px; }
   }
-  .reveal.visible{opacity:1;transform:translateY(0);}
-
-  @media (prefers-reduced-motion: reduce){
-    .reveal{opacity:1;transform:none;transition:none;}
-    html{scroll-behavior:auto;}
-  }
-
-  @media (max-width:780px){
-    section{padding:80px 0;}
-    .hero{padding-top:56px;}
-  }
-
-  :focus-visible{
-    outline:2px solid var(--coral);
-    outline-offset:2px;
+  @media (max-width:560px){
+    .nav{ padding:14px 5vw; }
+    .nav-cta{ padding:9px 16px; font-size:0.85rem; }
+    .hero{ padding:5vh 5vw 7vh; }
+    .section{ padding:7vh 5vw; }
+    .est-body{ padding:10px 18px 26px; }
+    .est-progress, .est-meta{ padding-left:18px; padding-right:18px; }
+    .price-card .pval{ font-size:2.2rem; }
+    .floatie{ display:none; }
+    .hero-stats{ gap:18px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <nav>
-    <div class="logo">
-      <span class="logo-mark"></span>
-      four halftech
-    </div>
-    <div class="nav-links nav-mobile-hide">
-      <a href="#halves">Product</a>
-      <a href="#flow">How it works</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
-    </div>
-    <a href="#demo" class="nav-cta">Book a demo</a>
-  </nav>
-</header>
+<div class="grain"></div>
 
-<main>
-  <!-- HERO -->
-  <section class="hero" style="padding-bottom:0;">
-    <span class="eyebrow"><span class="dot"></span>Built for clinics &amp; dental practices</span>
-    <h1>Your front desk has <span class="accent-coral">two halves.</span><br>We automate <span class="accent-teal">one of them.</span></h1>
-    <p class="hero-sub">Four Halftech answers calls and messages, books and reshuffles appointments, and clears insurance questions — so your staff only picks up the half of the job that actually needs a human.</p>
-    <div class="hero-ctas">
-      <button class="btn-primary">Book a demo</button>
-      <button class="btn-secondary">Hear a sample call →</button>
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo"><span class="mark">4T</span> 4 Teq</div>
+  <a href="#estimator" class="nav-cta">احسب سعر موقعك</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="eyebrow"><span class="dot"></span> عرض سعر فوري بدون مكالمات</div>
+    <h1>موقعك الإلكتروني جاهز<br>و<span class="accent">سعره قدّامك</span> في دقيقتين</h1>
+    <p class="lede">جاوب على شوية أسئلة عن نشاطك وشكل الموقع اللي محتاجه، وهنطلعلك سعر مبدئي فورًا بالجنيه المصري — من غير ما تستنى حد يرد عليك.</p>
+    <div class="hero-actions">
+      <a href="#estimator" class="btn-primary">
+        ابدأ احسب السعر
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </a>
+
     </div>
 
-    <div class="split-stage reveal">
-      <div class="split-half split-left">
-        <div class="split-label"><span class="bar"></span>Before · front desk, 9:14am</div>
-        <div class="ring-row">
-          <div class="ph"></div>
-          <div class="meta">
-            <div class="name">Line 1 — new patient</div>
-            <div class="status">RINGING — 0:38</div>
-          </div>
-        </div>
-        <div class="ring-row faded">
-          <div class="ph"></div>
-          <div class="meta">
-            <div class="name">Line 2 — reschedule</div>
-            <div class="status">ON HOLD — 2:51</div>
-          </div>
-        </div>
-        <div class="ring-row faded">
-          <div class="ph"></div>
-          <div class="meta">
-            <div class="name">Voicemail — insurance Q</div>
-            <div class="status">UNRETURNED — 1d</div>
-          </div>
-        </div>
-        <p class="split-foot">Three patients waiting. <strong>One front desk.</strong></p>
-      </div>
-      <div class="split-half split-right">
-        <div class="split-label"><span class="bar"></span>After · 4 Halftech, 9:14am</div>
-        <div class="chat-bubble-row"><div class="chat-bubble in">Hi, I need to move my cleaning from Thursday to next week.</div></div>
-        <div class="chat-bubble-row"><div class="chat-bubble out">I can do that. Dr. Aziz has Tue 2:15pm or Wed 10:30am open next week — which works?</div></div>
-        <div class="chat-bubble-row"><div class="chat-bubble in">Wed 10:30 please</div></div>
-        <div class="chat-bubble-row"><div class="chat-bubble out">Booked for Wed 10:30am. You'll get a reminder text the day before. ✓</div></div>
-        <p class="split-foot">Handled in <strong>41 seconds</strong>. No hold music.</p>
-      </div>
-    </div>
-  </section>
+  </div>
 
-  <!-- THE FOUR HALVES -->
-  <section id="halves" class="wrap">
-    <div class="section-head">
-      <div class="section-eyebrow">The four halves we take off your plate</div>
-      <h2>Same front desk. Half the workload.</h2>
-      <p>These are the four jobs that eat a receptionist's day in repetitive, low-judgment back-and-forth. 4 Halftech takes the routine half of each — your team keeps the half that needs a real person.</p>
-    </div>
-
-    <div class="halves-grid reveal">
-      <div class="half-card">
-        <span class="half-tag">Halftech 1</span>
-        <h3>Scheduling &amp; reschedules</h3>
-        <p>Books, moves, and confirms appointments against your real calendar — no double-booking, no back-and-forth texts.</p>
-        <div class="half-split-mini">
-          <div class="ai-part">AI: finds + confirms slot</div>
-          <div class="human-part">Staff: complex cases</div>
-        </div>
+  <div class="hero-visual">
+    <div class="quote-card">
+      <div class="floatie f1">سعر فوري ⚡</div>
+      <div class="qc-top">
+        <span class="who">عرض سعر — صيدلية النور</span>
+        <span class="badge">Shopify</span>
       </div>
-      <div class="half-card">
-        <span class="half-tag">Halftech 2</span>
-        <h3>Intake &amp; new patients</h3>
-        <p>Collects name, insurance, reason for visit, and history basics before the patient ever sits in your chair.</p>
-        <div class="half-split-mini">
-          <div class="ai-part">AI: gathers details</div>
-          <div class="human-part">Staff: clinical review</div>
-        </div>
+      <div class="qc-row"><span>نوع الموقع</span><span>متجر إلكتروني</span></div>
+      <div class="qc-row"><span>عدد المنتجات</span><span>٥٠ – ٢٠٠ منتج</span></div>
+      <div class="qc-row"><span>بوابة دفع</span><span>مطلوبة</span></div>
+      <div class="qc-row"><span>مدة التسليم</span><span>١٤ يوم عمل</span></div>
+      <div class="qc-total">
+        <span class="lab">السعر المبدئي</span>
+        <span class="val">١٨,٥٠٠ <sub>ج.م</sub></span>
       </div>
-      <div class="half-card">
-        <span class="half-tag">Halftech 3</span>
-        <h3>Insurance &amp; billing questions</h3>
-        <p>Answers "do you take my insurance," explains co-pays, and routes anything that needs a judgment call.</p>
-        <div class="half-split-mini">
-          <div class="ai-part">AI: coverage lookup</div>
-          <div class="human-part">Staff: disputes, exceptions</div>
-        </div>
-      </div>
-      <div class="half-card">
-        <span class="half-tag">Halftech 4</span>
-        <h3>After-hours &amp; overflow</h3>
-        <p>Picks up every call your team can't — nights, lunch, lines two and three — and triages anything urgent straight to staff.</p>
-        <div class="half-split-mini">
-          <div class="ai-part">AI: triage + log</div>
-          <div class="human-part">Staff: emergencies</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- HOW IT WORKS -->
-  <section id="flow" class="wrap">
-    <div class="section-head center">
-      <div class="section-eyebrow">How a call actually splits</div>
-      <h2>One conversation, divided down the middle</h2>
-      <p>Every call starts the same way. 4 Halftech handles its half live — and only crosses the seam to your team when the moment actually calls for a person.</p>
-    </div>
-
-    <div class="flow reveal">
-      <div class="flow-row">
-        <div class="flow-card ai"><h4><span class="chip ai">AI</span>Answers instantly</h4><p>No queue, no hold music — every call and message gets picked up in under two seconds, day or night.</p></div>
-        <div class="flow-center"><span class="flow-step-num">1</span></div>
-        <div class="flow-card flow-empty"><h4>spacer</h4><p>spacer</p></div>
-      </div>
-      <div class="flow-row">
-        <div class="flow-card flow-empty"><h4>spacer</h4><p>spacer</p></div>
-        <div class="flow-center"><span class="flow-step-num">2</span></div>
-        <div class="flow-card human"><h4><span class="chip ai">AI</span>Understands the ask</h4><p>Reschedule, new patient, billing question, emergency — it reads intent and pulls up the right workflow.</p></div>
-      </div>
-      <div class="flow-row">
-        <div class="flow-card ai"><h4><span class="chip ai">AI</span>Resolves the routine half</h4><p>Checks your live calendar, confirms insurance on file, books or updates the appointment — done, no hand-off needed.</p></div>
-        <div class="flow-center"><span class="flow-step-num">3</span></div>
-        <div class="flow-card flow-empty"><h4>spacer</h4><p>spacer</p></div>
-      </div>
-      <div class="flow-row">
-        <div class="flow-card flow-empty"><h4>spacer</h4><p>spacer</p></div>
-        <div class="flow-center"><span class="flow-step-num">4</span></div>
-        <div class="flow-card human"><h4><span class="chip human">Human</span>Takes the other half</h4><p>Anything clinical, sensitive, or unclear gets flagged and routed straight to your staff with full context attached.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <section class="stats-strip">
-    <div class="wrap">
-      <div class="stats-grid reveal">
-        <div class="stat-cell">
-          <div class="stat-num">24/7</div>
-          <div class="stat-label">Calls &amp; messages answered, including after hours</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-num">&lt;2s</div>
-          <div class="stat-label">Average time to first response</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-num">~60%</div>
-          <div class="stat-label">Of front-desk calls resolved without staff</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-num">5 min</div>
-          <div class="stat-label">To connect your calendar and go live</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TESTIMONIAL -->
-  <section class="wrap">
-    <div class="testimonial reveal">
-      <blockquote>"Our hold queue used to back up every morning by 9am. Now the routine half just... isn't there anymore. My team finally has time to actually talk to patients."</blockquote>
-      <cite>— Practice manager, multi-location dental group</cite>
-    </div>
-  </section>
-
-  <!-- PRICING -->
-  <section id="pricing" class="wrap">
-    <div class="section-head center">
-      <div class="section-eyebrow">Pricing</div>
-      <h2>Priced for one practice or twelve</h2>
-      <p>No per-seat fees for your staff. You're only paying for the half you're not doing anymore.</p>
-    </div>
-
-    <div class="pricing-grid reveal">
-      <div class="price-card">
-        <h3>Single Practice</h3>
-        <p class="price-desc">One location, getting the basics off the phone.</p>
-        <div class="price-amt">$249<span>/mo</span></div>
-        <ul class="price-feats">
-          <li>Scheduling &amp; reschedules</li>
-          <li>After-hours coverage</li>
-          <li>1 calendar integration</li>
-          <li>Email support</li>
-        </ul>
-        <a href="#demo" class="price-cta">Get started</a>
-      </div>
-      <div class="price-card featured">
-        <span class="featured-tag">Most common</span>
-        <h3>Growing Clinic</h3>
-        <p class="price-desc">For practices with real call volume and insurance traffic.</p>
-        <div class="price-amt">$549<span>/mo</span></div>
-        <ul class="price-feats">
-          <li>Everything in Single Practice</li>
-          <li>Insurance &amp; billing Q&amp;A</li>
-          <li>New patient intake forms</li>
-          <li>Live staff hand-off routing</li>
-          <li>Priority support</li>
-        </ul>
-        <a href="#demo" class="price-cta">Get started</a>
-      </div>
-      <div class="price-card">
-        <h3>Multi-Location</h3>
-        <p class="price-desc">For groups running several locations on one system.</p>
-        <div class="price-amt">Custom</div>
-        <ul class="price-feats">
-          <li>Everything in Growing Clinic</li>
-          <li>Unlimited locations</li>
-          <li>Shared front-desk reporting</li>
-          <li>Dedicated onboarding</li>
-        </ul>
-        <a href="#demo" class="price-cta">Talk to sales</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="wrap">
-    <div class="section-head">
-      <div class="section-eyebrow">Questions</div>
-      <h2>Before you hand over the phone</h2>
-    </div>
-    <div class="faq-list reveal">
-      <details class="faq-item">
-        <summary>Will it sound like a robot to my patients?</summary>
-        <p>No. It's tuned for warm, plain conversation, not scripted menus. Most callers move straight through their request without realizing they're not talking to a person — and if they ask, it says so honestly.</p>
-      </details>
-      <details class="faq-item">
-        <summary>What happens with something urgent or clinical?</summary>
-        <p>It never tries to make a clinical judgment call. Anything urgent, sensitive, or outside its scope gets flagged and routed straight to your staff, with the conversation history attached so nothing gets repeated.</p>
-      </details>
-      <details class="faq-item">
-        <summary>Does it actually book into our real calendar?</summary>
-        <p>Yes — it connects directly to your existing scheduling software, so it's always working off live availability. No separate calendar to manage, no double-bookings.</p>
-      </details>
-      <details class="faq-item">
-        <summary>How long does setup take?</summary>
-        <p>Most single-location practices are live within a day. We connect your calendar, load your insurance list and office policies, and run a short test batch of calls before it goes live for patients.</p>
-      </details>
-      <details class="faq-item">
-        <summary>Can we turn it off for certain hours or lines?</summary>
-        <p>Yes. You control which lines it answers and when — run it after-hours only, as overflow during busy stretches, or full-time across every line.</p>
-      </details>
-    </div>
-  </section>
-
-  <!-- FINAL CTA -->
-  <section class="wrap" id="demo">
-    <div class="final-cta reveal">
-      <h2>See your half disappear.</h2>
-      <p>Book a 20-minute demo with your actual call volume — we'll show you exactly which half 4 Halftech would take off your front desk.</p>
-      <div class="hero-ctas">
-        <button class="btn-primary">Book a demo</button>
-        <button class="btn-secondary">Hear a sample call →</button>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <div class="footer-grid">
-      <div>
-        <div class="logo" style="margin-bottom:14px;">
-          <span class="logo-mark"></span>
-          four halftech
-        </div>
-        <p style="font-size:13.5px;opacity:0.6;max-width:240px;">The other half of your front desk.</p>
-      </div>
-      <div class="footer-cols">
-        <div class="footer-col">
-          <h5>Product</h5>
-          <a href="#halves">The four halves</a>
-          <a href="#flow">How it works</a>
-          <a href="#pricing">Pricing</a>
-        </div>
-        <div class="footer-col">
-          <h5>Company</h5>
-          <a href="#">About</a>
-          <a href="#">Security</a>
-          <a href="#">Contact</a>
-        </div>
-        <div class="footer-col">
-          <h5>Get started</h5>
-          <a href="#demo">Book a demo</a>
-          <a href="#faq">FAQ</a>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Four Halftech. All rights reserved.</span>
-      <span class="mono">4HT — built for clinics</span>
+      <div class="floatie f2">بدون التزام</div>
     </div>
   </div>
+</section>
+
+
+
+
+
+<!-- COMPARE -->
+<section class="section compare">
+  <div class="section-head">
+    <span class="tag">اختار اللي يناسبك</span>
+    <h2>Custom Website ولا Shopify؟</h2>
+    <p>كل نوع ليه استخدام مختلف — والفورم هيوديك على حسب اختيارك.</p>
+  </div>
+  <div class="compare-grid">
+    <div class="compare-card custom">
+      <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+      <h3>موقع Custom</h3>
+      <div class="sub">مصمم ومبرمج من الصفر حسب شكل نشاطك بالظبط</div>
+      <ul>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> مناسب للشركات والعيادات والخدمات</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> تصميم خاص بهوية البراند بتاعك</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> صفحات حسب احتياجك (من ٣ لـ ١٠+)</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> فورم حجز أو تواصل أو طلب خدمة</li>
+      </ul>
+    </div>
+    <div class="compare-card shopify">
+      <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+      <h3>متجر Shopify</h3>
+      <div class="sub">متجر إلكتروني جاهز للبيع مباشرة بعدد منتجات وبوابة دفع</div>
+      <ul>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> مناسب لو بتبيع منتجات أونلاين</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> ربط بوابات دفع ودفع عند الاستلام</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> إدارة منتجات ومخزون وشحن</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> يدعم أي عدد منتجات حسب احتياجك</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ESTIMATOR FORM -->
+<section class="section form-section" id="estimator">
+  <div class="section-head">
+    <span class="tag">عرض السعر</span>
+    <h2>طلب عرض السعر</h2>
+    <p>السعر بيتغيّر حسب اختياراتك — جاوب بدقة عشان السعر يطلع قريب من الحقيقي.</p>
+  </div>
+
+  <div class="estimator">
+    <div class="est-progress" id="estProgress"></div>
+    <div class="est-meta">
+      <span id="stepLabel">خطوة ١ من ٤</span>
+      <span id="stepName">نوع الموقع</span>
+    </div>
+
+    <div class="est-body">
+      <form id="quoteForm" onsubmit="return false;">
+
+        <!-- STEP 1: site type -->
+        <div class="step-pane active" data-step="1">
+          <div class="step-title">عايز موقع ايه؟</div>
+          <div class="step-hint">اختار النوع اللي يناسب نشاطك، والفورم هيتغيّر حسب اختيارك.</div>
+          <div class="choice-grid">
+            <div class="choice-card" data-value="custom" data-group="siteType">
+              <span class="cico">🧩</span>
+              <h4>موقع Custom</h4>
+              <p>موقع تعريفي أو خدمي مصمم خصيصي لنشاطك</p>
+            </div>
+            <div class="choice-card" data-value="shopify" data-group="siteType">
+              <span class="cico">🛒</span>
+              <h4>متجر Shopify</h4>
+              <p>متجر إلكتروني لبيع المنتجات أونلاين</p>
+            </div>
+          </div>
+          <div class="err-msg" data-err="1">من فضلك اختار نوع الموقع عشان تكمل.</div>
+        </div>
+
+        <!-- STEP 2A: custom details -->
+        <div class="step-pane" data-step="2-custom">
+          <div class="step-title">تفاصيل الموقع الـ Custom</div>
+          <div class="step-hint">دلوقتي هنفهم نشاطك وحجم الموقع المطلوب.</div>
+
+          <div class="field">
+            <label>نوع النشاط <span class="req">*</span></label>
+            <select id="businessType">
+              <option value="">اختار نوع النشاط</option>
+              <option value="clinic">عيادة / مركز طبي</option>
+              <option value="restaurant">مطعم / كافيه</option>
+              <option value="realestate">عقارات</option>
+              <option value="services">خدمات (محاسبة، استشارات، قانوني...)</option>
+              <option value="education">تعليم / تدريب</option>
+              <option value="manufacturing">مصنع / موردين</option>
+              <option value="other">نشاط تاني</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>عدد الصفحات المطلوبة <span class="req">*</span></label>
+            <div class="pill-group" id="pageCount">
+              <div class="pill" data-value="small">٣ – ٥ صفحات</div>
+              <div class="pill" data-value="medium">٦ – ١٠ صفحات</div>
+              <div class="pill" data-value="large">+١٠ صفحات</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>محتاج أي خصائص إضافية؟</label>
+            <div class="check-row" data-group="customFeatures" data-value="booking">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>نظام حجز مواعيد</strong><span>مناسب للعيادات والخدمات</span></div>
+            </div>
+            <div class="check-row" data-group="customFeatures" data-value="multilang">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>موقع بلغتين (عربي / إنجليزي)</strong><span>للنشاط اللي بيستهدف غير العرب</span></div>
+            </div>
+            <div class="check-row" data-group="customFeatures" data-value="blog">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>مدونة / قسم أخبار</strong><span>لنشر محتوى بشكل دوري</span></div>
+            </div>
+            <div class="check-row" data-group="customFeatures" data-value="dashboard">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>لوحة تحكم لإدارة المحتوى</strong><span>تقدر تعدّل المحتوى بنفسك</span></div>
+            </div>
+          </div>
+          <div class="err-msg" data-err="2-custom">من فضلك كمّل نوع النشاط وعدد الصفحات.</div>
+        </div>
+
+        <!-- STEP 2B: shopify details -->
+        <div class="step-pane" data-step="2-shopify">
+          <div class="step-title">تفاصيل متجر Shopify</div>
+          <div class="step-hint">هنحتاج نعرف حجم المتجر وطريقة البيع.</div>
+
+          <div class="field">
+            <label>عدد المنتجات المتوقع <span class="req">*</span></label>
+            <div class="pill-group" id="productCount">
+              <div class="pill" data-value="small">أقل من ٥٠ منتج</div>
+              <div class="pill" data-value="medium">٥٠ – ٢٠٠ منتج</div>
+              <div class="pill" data-value="large">+٢٠٠ منتج</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>طريقة الدفع <span class="req">*</span></label>
+            <div class="pill-group" id="paymentType">
+              <div class="pill" data-value="cod">دفع عند الاستلام بس</div>
+              <div class="pill" data-value="online">بوابة دفع إلكتروني</div>
+              <div class="pill" data-value="both">الاتنين مع بعض</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>محتاج خصائص إضافية؟</label>
+            <div class="check-row" data-group="shopifyFeatures" data-value="shipping">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>ربط شركة شحن</strong><span>تتبع الشحنات أوتوماتيك</span></div>
+            </div>
+            <div class="check-row" data-group="shopifyFeatures" data-value="migration">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>نقل منتجات من متجر حالي</strong><span>لو عندك متجر شغال بالفعل</span></div>
+            </div>
+            <div class="check-row" data-group="shopifyFeatures" data-value="multilang">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>متجر بلغتين</strong><span>عربي وإنجليزي</span></div>
+            </div>
+            <div class="check-row" data-group="shopifyFeatures" data-value="custom-theme">
+              <div class="box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="txt"><strong>تصميم Theme مخصص</strong><span>مش قالب جاهز من Shopify</span></div>
+            </div>
+          </div>
+          <div class="err-msg" data-err="2-shopify">من فضلك حدد عدد المنتجات وطريقة الدفع.</div>
+        </div>
+
+        <!-- STEP 3: contact info -->
+        <div class="step-pane" data-step="3">
+          <div class="step-title">بياناتك عشان نبعتلك السعر</div>
+          <div class="step-hint">مش هنزعجك — البيانات دي عشان نتواصل معاك بخصوص العرض بس.</div>
+
+          <div class="field">
+            <label>الاسم <span class="req">*</span></label>
+            <input type="text" id="fName" placeholder="اسمك بالكامل">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>رقم الواتساب <span class="req">*</span></label>
+              <input type="tel" id="fPhone" placeholder="01xxxxxxxxx">
+            </div>
+            <div class="field">
+              <label>اسم النشاط / الشركة</label>
+              <input type="text" id="fBusiness" placeholder="اسم المحل أو الشركة">
+            </div>
+          </div>
+          <div class="field">
+            <label>إيميل (اختياري)</label>
+            <input type="email" id="fEmail" placeholder="example@email.com">
+          </div>
+          <div class="err-msg" data-err="3">من فضلك اكتب الاسم ورقم الواتساب.</div>
+        </div>
+
+        <!-- STEP 4: result -->
+        <div class="step-pane" data-step="4">
+          <div class="result-pane">
+            <div class="check-burst">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 id="resultName">تمام يا فلان، السعر المبدئي جاهز</h3>
+            <div class="sub">السعر ده تقريبي وهيتأكد بعد ما نكلمك على الواتساب</div>
+
+            <div class="price-card">
+              <div class="plabel">السعر المبدئي يبدأ من</div>
+              <div class="pval"><span id="priceValue">٠</span><span class="cur">ج.م</span></div>
+              <div class="prange" id="priceRange"></div>
+            </div>
+
+            <div class="result-actions">
+              <a href="#" id="waBtn" target="_blank" class="btn-whatsapp">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.13h-.01c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.27-8.24 2.21 0 4.28.86 5.84 2.42a8.18 8.18 0 0 1 2.42 5.83c0 4.55-3.71 8.21-8.27 8.21zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.17.25-.64.81-.78.97-.14.17-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.22-.74-.65-1.23-1.46-1.38-1.71-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14 0-.31-.02-.48-.02-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.04 0 1.2.88 2.37 1 2.53.12.17 1.73 2.64 4.2 3.7.59.25 1.05.4 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29z"/></svg>
+                كمل على واتساب
+              </a>
+              <button type="button" class="btn-restart" id="restartBtn">احسب عرض تاني</button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="est-nav" id="estNav">
+      <button type="button" class="btn-back" id="backBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        رجوع
+      </button>
+      <button type="button" class="btn-next" id="nextBtn">
+        كمل
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq">
+  <div class="section-head">
+    <span class="tag">أسئلة شائعة</span>
+    <h2>محتاج تعرف كمان؟</h2>
+  </div>
+  <div class="faq-list" id="faqList">
+    <div class="faq-item">
+      <div class="faq-q">السعر اللي هيظهرلي نهائي ولا تقريبي؟<span class="plus">+</span></div>
+      <div class="faq-a"><p>السعر اللي بيظهر بعد الفورم هو سعر مبدئي مبني على اختياراتك. بنأكده بالظبط بعد مكالمة قصيرة على الواتساب نفهم فيها تفاصيل أكتر عن نشاطك.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">إيه الفرق الحقيقي بين Custom و Shopify؟<span class="plus">+</span></div>
+      <div class="faq-a"><p>Custom مناسب لو عندك نشاط خدمي زي عيادة أو شركة ومحتاج موقع تعريفي. Shopify مناسب لو بتبيع منتجات وعايز متجر إلكتروني كامل بإدارة مخزون وطلبات.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">هل فيه دفع مقدم؟<span class="plus">+</span></div>
+      <div class="faq-a"><p>بنتفق على نظام الدفع بعد تأكيد السعر النهائي على الواتساب، وعادة بيكون على دفعتين أو حسب مراحل التسليم.</p></div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">قد إيه بياخد تسليم الموقع؟<span class="plus">+</span></div>
+      <div class="faq-a"><p>بيختلف حسب حجم الموقع وعدد الصفحات أو المنتجات، بس بنوضحلك مدة تقريبية فور ما نأكد التفاصيل معاك.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="logo"><span class="mark">4T</span> 4 Teq</div>
+    <div class="footer-links">
+      <a href="#how">إزاي بنشتغل</a>
+      <a href="#estimator">احسب السعر</a>
+      <a href="https://wa.me/201000000000" target="_blank">تواصل واتساب</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 4 Teq — كل الحقوق محفوظة</div>
 </footer>
 
 <script>
-  const els = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if(e.isIntersecting){
-        e.target.classList.add('visible');
-        io.unobserve(e.target);
+(function(){
+  // ---------- FAQ accordion ----------
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    q.addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>{
+        i.classList.remove('open');
+        i.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if(!isOpen){
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
       }
     });
-  }, {threshold:0.12});
-  els.forEach(el => io.observe(el));
+  });
+
+  // ---------- ESTIMATOR LOGIC ----------
+  const state = {
+    siteType: null,
+    businessType: '',
+    pageCount: null,
+    customFeatures: new Set(),
+    productCount: null,
+    paymentType: null,
+    shopifyFeatures: new Set(),
+    name: '', phone: '', business: '', email: ''
+  };
+
+  // flow: 1 -> (2-custom | 2-shopify) -> 3 -> 4
+  let flow = ['1'];
+  let currentIndex = 0;
+
+  const panes = {
+    '1': document.querySelector('[data-step="1"]'),
+    '2-custom': document.querySelector('[data-step="2-custom"]'),
+    '2-shopify': document.querySelector('[data-step="2-shopify"]'),
+    '3': document.querySelector('[data-step="3"]'),
+    '4': document.querySelector('[data-step="4"]')
+  };
+  const stepNames = {
+    '1': 'نوع الموقع',
+    '2-custom': 'تفاصيل الموقع',
+    '2-shopify': 'تفاصيل المتجر',
+    '3': 'بياناتك',
+    '4': 'السعر'
+  };
+
+  const progressEl = document.getElementById('estProgress');
+  const stepLabelEl = document.getElementById('stepLabel');
+  const stepNameEl = document.getElementById('stepName');
+  const nextBtn = document.getElementById('nextBtn');
+  const backBtn = document.getElementById('backBtn');
+  const estNav = document.getElementById('estNav');
+
+  function buildProgress(){
+    progressEl.innerHTML = '';
+    const totalVisual = 4; // visual steps always shown as 4 bars regardless of branch
+    for(let i=0;i<totalVisual;i++){
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.innerHTML = '<i></i>';
+      progressEl.appendChild(bar);
+    }
+  }
+  buildProgress();
+
+  function renderProgress(){
+    const bars = progressEl.querySelectorAll('.bar i');
+    const idx = currentIndex; // 0-based among flow
+    bars.forEach((b, i)=>{
+      b.style.width = i <= idx ? '100%' : '0%';
+    });
+    stepLabelEl.textContent = `خطوة ${toArabicNum(currentIndex+1)} من ${toArabicNum(flow.length)}`;
+    stepNameEl.textContent = stepNames[flow[currentIndex]];
+  }
+
+  function toArabicNum(n){
+    const map = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    return String(n).split('').map(d=> map[+d] !== undefined ? map[+d] : d).join('');
+  }
+
+  function showStep(){
+    Object.values(panes).forEach(p=>p.classList.remove('active'));
+    panes[flow[currentIndex]].classList.add('active');
+    renderProgress();
+    backBtn.classList.toggle('hidden', currentIndex === 0);
+    if(flow[currentIndex] === '4'){
+      estNav.style.display = 'none';
+    } else {
+      estNav.style.display = 'flex';
+      nextBtn.textContent = '';
+      nextBtn.innerHTML = (flow[currentIndex] === '3')
+        ? 'احسب السعر <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>'
+        : 'كمل <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>';
+    }
+  }
+
+  function showErr(stepKey, show){
+    const el = document.querySelector(`[data-err="${stepKey}"]`);
+    if(el) el.style.display = show ? 'block' : 'none';
+  }
+
+  // STEP 1: site type selection
+  document.querySelectorAll('[data-group="siteType"]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-group="siteType"]').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.siteType = card.dataset.value;
+      showErr('1', false);
+    });
+  });
+
+  // pill groups (page count / product count / payment type)
+  function setupPillGroup(containerId, stateKey){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    container.querySelectorAll('.pill').forEach(pill=>{
+      pill.addEventListener('click', ()=>{
+        container.querySelectorAll('.pill').forEach(p=>p.classList.remove('selected'));
+        pill.classList.add('selected');
+        state[stateKey] = pill.dataset.value;
+        showErr(flow[currentIndex], false);
+      });
+    });
+  }
+  setupPillGroup('pageCount', 'pageCount');
+  setupPillGroup('productCount', 'productCount');
+  setupPillGroup('paymentType', 'paymentType');
+
+  // checkbox rows (features) - multi select
+  document.querySelectorAll('.check-row').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      row.classList.toggle('selected');
+      const group = row.dataset.group;
+      const val = row.dataset.value;
+      const set = state[group];
+      if(row.classList.contains('selected')) set.add(val);
+      else set.delete(val);
+    });
+  });
+
+  // business type select
+  const businessTypeEl = document.getElementById('businessType');
+  businessTypeEl.addEventListener('change', ()=>{
+    state.businessType = businessTypeEl.value;
+    showErr('2-custom', false);
+  });
+
+  // contact fields
+  const fName = document.getElementById('fName');
+  const fPhone = document.getElementById('fPhone');
+  const fBusiness = document.getElementById('fBusiness');
+  const fEmail = document.getElementById('fEmail');
+
+  // ---------- PRICING ENGINE (EGP) ----------
+  function calcCustomPrice(){
+    let base = 6000; // base custom site
+    const pageMap = { small: 0, medium: 2500, large: 6000 };
+    base += pageMap[state.pageCount] || 0;
+
+    const featureCost = {
+      booking: 2500,
+      multilang: 2000,
+      blog: 1500,
+      dashboard: 3000
+    };
+    let featuresTotal = 0;
+    const breakdown = [];
+    breakdown.push(['موقع Custom أساسي', 6000]);
+    if(state.pageCount){
+      const pageLabel = {small:'٣–٥ صفحات', medium:'٦–١٠ صفحات', large:'+١٠ صفحات'}[state.pageCount];
+      breakdown.push(['صفحات إضافية (' + pageLabel + ')', pageMap[state.pageCount]]);
+    }
+    state.customFeatures.forEach(f=>{
+      featuresTotal += featureCost[f];
+      const labels = {booking:'نظام حجز مواعيد', multilang:'موقع بلغتين', blog:'مدونة / أخبار', dashboard:'لوحة تحكم محتوى'};
+      breakdown.push([labels[f], featureCost[f]]);
+    });
+    base += featuresTotal;
+    return { total: base, breakdown };
+  }
+
+  function calcShopifyPrice(){
+    let base = 9000; // base shopify build
+    const breakdown = [['متجر Shopify أساسي', 9000]];
+
+    const productMap = { small: 0, medium: 2000, large: 5000 };
+    base += productMap[state.productCount] || 0;
+    if(state.productCount){
+      const pLabel = {small:'أقل من ٥٠ منتج', medium:'٥٠–٢٠٠ منتج', large:'+٢٠٠ منتج'}[state.productCount];
+      breakdown.push(['رفع وتنسيق منتجات (' + pLabel + ')', productMap[state.productCount]]);
+    }
+
+    const paymentMap = { cod: 0, online: 1500, both: 2200 };
+    base += paymentMap[state.paymentType] || 0;
+    if(state.paymentType){
+      const payLabel = {cod:'دفع عند الاستلام', online:'بوابة دفع إلكتروني', both:'دفع عند الاستلام + بوابة إلكتروني'}[state.paymentType];
+      breakdown.push(['إعداد طريقة الدفع (' + payLabel + ')', paymentMap[state.paymentType]]);
+    }
+
+    const featureCost = { shipping: 1800, migration: 2500, multilang: 2000, 'custom-theme': 4500 };
+    state.shopifyFeatures.forEach(f=>{
+      base += featureCost[f];
+      const labels = {shipping:'ربط شركة شحن', migration:'نقل منتجات من متجر حالي', multilang:'متجر بلغتين', 'custom-theme':'تصميم Theme مخصص'};
+      breakdown.push([labels[f], featureCost[f]]);
+    });
+
+    return { total: base, breakdown };
+  }
+
+  function formatEGP(n){
+    // format with arabic-indic digits and comma separators
+    let s = n.toLocaleString('en-US');
+    const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
+    return s.replace(/[0-9]/g, d=>map[d]);
+  }
+
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwW5BXMDzumQjDcOCZeaSnxnExK1QRZV4lz-d4vF0BDVBZIWf64RcU3aM7Zyk4mmo3r/exec';
+
+  function submitToSheet(payload){
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(err => console.warn('Sheet submission failed:', err));
+  }
+
+  function renderResult(){
+    const result = state.siteType === 'shopify' ? calcShopifyPrice() : calcCustomPrice();
+    const total = result.total;
+    const low = total;
+    const high = Math.round(total * 1.18 / 50) * 50;
+
+    document.getElementById('resultName').textContent = state.name
+      ? `تمام يا ${state.name}، السعر المبدئي جاهز`
+      : 'تمام، السعر المبدئي جاهز';
+    document.getElementById('priceValue').textContent = formatEGP(low);
+    document.getElementById('priceRange').textContent = `السعر النهائي يتراوح بين ${formatEGP(low)} و ${formatEGP(high)} ج.م حسب تفاصيل التنفيذ`;
+
+    // whatsapp link
+    const siteLabel = state.siteType === 'shopify' ? 'متجر Shopify' : 'موقع Custom';
+    let msg = `السلام عليكم، أنا ${state.name || ''} `;
+    if(state.business) msg += `من ${state.business} `;
+    msg += `— عايز أتأكد من عرض سعر ${siteLabel} اللي طلعلي ${formatEGP(low)} ج.م على موقع 4 Teq.`;
+    const waLink = `https://wa.me/201000000000?text=${encodeURIComponent(msg)}`;
+    document.getElementById('waBtn').setAttribute('href', waLink);
+
+    // build readable details
+    const customFeatLabels = {booking:'نظام حجز', multilang:'لغتين', blog:'مدونة', dashboard:'لوحة تحكم'};
+    const shopifyFeatLabels = {shipping:'شحن', migration:'نقل منتجات', multilang:'لغتين', 'custom-theme':'theme مخصص'};
+    const featLabels = state.siteType === 'shopify' ? shopifyFeatLabels : customFeatLabels;
+    const featSet = state.siteType === 'shopify' ? state.shopifyFeatures : state.customFeatures;
+    const featuresText = [...featSet].map(f => featLabels[f] || f).join(' / ') || 'لا يوجد';
+
+    let details = '';
+    if(state.siteType === 'custom'){
+      const btLabel = {clinic:'عيادة', restaurant:'مطعم/كافيه', realestate:'عقارات', services:'خدمات', education:'تعليم', manufacturing:'مصنع', other:'أخرى'};
+      const pcLabel = {small:'٣–٥ صفحات', medium:'٦–١٠ صفحات', large:'+١٠ صفحات'};
+      details = (btLabel[state.businessType] || '') + ' — ' + (pcLabel[state.pageCount] || '');
+    } else {
+      const prLabel = {small:'أقل من ٥٠', medium:'٥٠–٢٠٠', large:'+٢٠٠'};
+      const pyLabel = {cod:'دفع عند الاستلام', online:'بوابة إلكترونية', both:'الاتنين'};
+      details = 'منتجات: ' + (prLabel[state.productCount] || '') + ' — دفع: ' + (pyLabel[state.paymentType] || '');
+    }
+
+    submitToSheet({
+      name: state.name,
+      phone: state.phone,
+      business: state.business || '—',
+      siteType: siteLabel,
+      details: details,
+      features: featuresText,
+      price: low + ' ج.م'
+    });
+  }
+
+  // ---------- VALIDATION PER STEP ----------
+  function validateStep(stepKey){
+    if(stepKey === '1'){
+      if(!state.siteType){ showErr('1', true); return false; }
+      return true;
+    }
+    if(stepKey === '2-custom'){
+      if(!state.businessType || !state.pageCount){ showErr('2-custom', true); return false; }
+      return true;
+    }
+    if(stepKey === '2-shopify'){
+      if(!state.productCount || !state.paymentType){ showErr('2-shopify', true); return false; }
+      return true;
+    }
+    if(stepKey === '3'){
+      state.name = fName.value.trim();
+      state.phone = fPhone.value.trim();
+      state.business = fBusiness.value.trim();
+      state.email = fEmail.value.trim();
+      if(!state.name || !state.phone){ showErr('3', true); return false; }
+      return true;
+    }
+    return true;
+  }
+
+  function buildFlow(){
+    flow = ['1'];
+    if(state.siteType === 'shopify') flow.push('2-shopify');
+    else if(state.siteType === 'custom') flow.push('2-custom');
+    flow.push('3', '4');
+  }
+
+  nextBtn.addEventListener('click', ()=>{
+    const key = flow[currentIndex];
+    if(!validateStep(key)) return;
+
+    if(key === '1'){
+      buildFlow();
+    }
+
+    if(key === '3'){
+      renderResult();
+    }
+
+    currentIndex++;
+    showStep();
+    document.getElementById('estimator').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  backBtn.addEventListener('click', ()=>{
+    if(currentIndex === 0) return;
+    currentIndex--;
+    showStep();
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    // reset state
+    state.siteType = null; state.businessType=''; state.pageCount=null;
+    state.customFeatures.clear(); state.productCount=null; state.paymentType=null;
+    state.shopifyFeatures.clear();
+    document.querySelectorAll('.choice-card, .pill, .check-row').forEach(el=>el.classList.remove('selected'));
+    businessTypeEl.value = '';
+    fName.value=''; fPhone.value=''; fBusiness.value=''; fEmail.value='';
+    flow = ['1'];
+    currentIndex = 0;
+    showStep();
+    document.getElementById('estimator').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  showStep();
+})();
 </script>
 
 </body>
